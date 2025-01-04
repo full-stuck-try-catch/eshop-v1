@@ -1,4 +1,6 @@
 using Asp.Versioning.ApiExplorer;
+using eShopV1.API.Extensions;
+using eShopV1.Application;
 using eShopV1.API.OpenApi;
 using eShopV1.Infrastructure;
 
@@ -10,6 +12,8 @@ builder.Services.AddControllers();
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
@@ -29,6 +33,10 @@ if (app.Environment.IsDevelopment())
             options.SwaggerEndpoint(url, name);
         }
     });
+
+    app.ApplyMigrations();
+
+    app.SeedData();
 }
 
 // Configure the HTTP request pipeline.

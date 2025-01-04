@@ -1,7 +1,20 @@
 ﻿using Asp.Versioning;
+using eShopv1.Domain.Abstractions;
+using eShopv1.Domain.Users;
+using eShopV1.Application.Abstractions.Authentication;
+using eShopV1.Application.Abstractions.Data;
+using eShopV1.Application.Abstractions.Jwt;
+using eShopV1.Application.Abstractions.Time;
+using eShopV1.Infrastructure.Authentication;
+using eShopV1.Infrastructure.Data;
+using eShopV1.Infrastructure.Repositories;
+using eShopV1.Infrastructure.Time;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace eShopV1.Infrastructure
 {
@@ -11,8 +24,12 @@ namespace eShopV1.Infrastructure
        this IServiceCollection services,
        IConfiguration configuration)
         {
+            services.AddTransient<IDateTimeProvider, DateTimeProvider>();
+
             AddPersistence(services, configuration);
+
             AddAuthentication(services, configuration);
+
             AddApiVersioning(services);
 
             return services;
@@ -25,7 +42,19 @@ namespace eShopV1.Infrastructure
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
+
+            services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
+            services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
+
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            services.AddScoped<IRoleRepository, RoleRepository>();
+
+            services.AddSingleton<ISqlConnectionFactory>(_ =>
+            new SqlConnectionFactory(connectionString));
         }
+
         private static void AddApiVersioning(IServiceCollection services)
         {
             services
@@ -45,26 +74,29 @@ namespace eShopV1.Infrastructure
 
         private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
         {
-            var secretKey = configuration["Jwt:SecretKey"] ?? throw new ArgumentNullException("JWT SecretKey not found in configuration");
-            var key = System.Text.Encoding.ASCII.GetBytes(secretKey);
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = "JwtBearer";
-                options.DefaultChallengeScheme = "JwtBearer";
-            })
-            .AddJwtBearer("JwtBearer", options =>
-            {
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key),
-                    ClockSkew = TimeSpan.Zero
-                };
+                    var jwtSettings = configuration.GetSection("Jwt");
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings["Issuer"],
+                        ValidAudience = jwtSettings["Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+                    };
+                });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
             });
+
+            services.AddTransient<IJwtTokenService, JwtTokenService>();
+            services.AddTransient<IPasswordHasher, PasswordHasher>();
         }
      }
 }

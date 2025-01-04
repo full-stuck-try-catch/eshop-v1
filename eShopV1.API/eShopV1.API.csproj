@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageReference Include="Bogus" Version="35.6.3" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.7">
@@ -22,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\eShopV1.Application\eShopV1.Application.csproj" />
-    <ProjectReference Include="..\eShopv1.Domain\eShopv1.Domain.csproj" />
     <ProjectReference Include="..\eShopV1.Infrastructure\eShopV1.Infrastructure.csproj" />
   </ItemGroup>
 

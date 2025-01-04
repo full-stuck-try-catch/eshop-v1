@@ -1,10 +1,69 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using eShopv1.Domain.Abstractions;
+using eShopv1.Domain.Users.Events;
+using Microsoft.AspNetCore.Identity;
 using System;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace eShopv1.Domain.Users
 {
-    public sealed class User : IdentityUser<Guid>
+    public sealed class User : Entity
     {
+        private readonly List<Role> _roles = new();
+        public string? UserName { get; private set; }
+        public string Email { get; private set; }
+        public string PasswordHash { get; private set; }
+
+        public IReadOnlyCollection<Role> Roles => _roles.ToList();
+
         public Address? Address { get; set; }
+
+        private User() { }
+
+        private User(Guid id, string? userName, string email, string passwordHash) : base(id)
+        {
+            UserName = userName;
+            Email = email;
+            PasswordHash = passwordHash;
+        }
+
+        public static async Task<Result<User>> Create(Guid userId, string? userName, string email, string passwordHash, IUserRepository userRepository, CancellationToken cancellationToken = default)
+        {
+            if (await userRepository.IsExistedUser(email, cancellationToken))
+                return Result.Failure<User>(UserErrors.EmailAlreadyExists);
+
+            var user = new User(userId, userName, email, passwordHash);
+
+            user.RaiseDomainEvent(new UserCreatedDomainEvent(userId));
+
+            return Result.Success(user);
+        }
+
+        public async Task<Result> UpdateEmail(string email, IUserRepository userRepository)
+        {
+            if (await userRepository.IsExistedUser(email))
+                return Result.Failure(UserErrors.EmailAlreadyExists);
+
+            Email = email;
+
+            return Result.Success();
+        }
+
+        public Result ChangePassword(string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(newPassword))
+                return Result.Failure(UserErrors.PasswordNullOrEmpty);
+
+            PasswordHash = newPassword;
+
+            RaiseDomainEvent(new UserPasswordChangedDomainEvent(Id, PasswordHash));
+
+            return Result.Success();
+        }
+
+        public void AddRole(Role role)
+        {
+            _roles.Add(role);
+        }
     }
 }

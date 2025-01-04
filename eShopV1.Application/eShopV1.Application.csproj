@@ -19,11 +19,4 @@
     <ProjectReference Include="..\eShopv1.Domain\eShopv1.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Abstractions\" />
-    <Folder Include="Orders\" />
-    <Folder Include="Products\" />
-    <Folder Include="Shared\" />
-  </ItemGroup>
-
 </Project>
