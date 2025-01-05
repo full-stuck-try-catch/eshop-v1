@@ -20,7 +20,7 @@ namespace eShopV1.Infrastructure.Configurations
             builder.HasData( 
                 new RolePermission
                 {
-                    RoleId = Role.Registered.Id,
+                    RoleId = Role.User.Id,
                     PermissionId = Permission.UsersRead.Id
                 },
                 new RolePermission

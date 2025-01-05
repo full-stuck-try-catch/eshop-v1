@@ -29,7 +29,7 @@ namespace eShopV1.Application.Users.RegisterUser
             var hashedPassword = _passwordHasher.Hash(request.Password);
             var userId = Guid.NewGuid();
 
-            var registeredRole = await _roleRepository.GetByNameAsync(Role.Registered.Name, cancellationToken);
+            var registeredRole = await _roleRepository.GetByNameAsync(Role.User.Name, cancellationToken);
 
             if (registeredRole == null)
                 return Result.Failure<RegisterUserResponse>(UserErrors.DefaultRoleNotFound);
@@ -38,6 +38,8 @@ namespace eShopV1.Application.Users.RegisterUser
                 userId,
                 request.UserName,
                 request.Email,
+                request.FirstName,
+                request.LastName,
                 hashedPassword,
                 _userRepository,
                 cancellationToken);

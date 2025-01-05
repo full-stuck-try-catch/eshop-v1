@@ -12,8 +12,8 @@ using eShopV1.Infrastructure;
 namespace eShopV1.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250718094854_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250720042847_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -108,7 +108,7 @@ namespace eShopV1.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            Name = "Registered"
+                            Name = "User"
                         });
                 });
 
@@ -160,6 +160,16 @@ namespace eShopV1.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("last_name");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

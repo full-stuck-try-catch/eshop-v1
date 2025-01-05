@@ -5,7 +5,7 @@ namespace eShopv1.Domain.Users
     public sealed class Role 
     {
         public static readonly Role Admin = new(1, "Admin");
-        public static readonly Role Registered = new(2, "Registered");
+        public static readonly Role User = new(2, "User");
 
         public Role(int id, string name)
         {

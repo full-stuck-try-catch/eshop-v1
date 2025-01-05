@@ -12,6 +12,11 @@ namespace eShopv1.Domain.Users
         private readonly List<Role> _roles = new();
         public string? UserName { get; private set; }
         public string Email { get; private set; }
+
+        public string? FirstName { get; private set; }
+
+        public string? LastName { get; private set; }
+
         public string PasswordHash { get; private set; }
 
         public IReadOnlyCollection<Role> Roles => _roles.ToList();
@@ -20,21 +25,23 @@ namespace eShopv1.Domain.Users
 
         private User() { }
 
-        private User(Guid id, string? userName, string email, string passwordHash) : base(id)
+        private User(Guid id, string? userName, string email, string? firstName , string? lastName, string passwordHash) : base(id)
         {
             UserName = userName;
             Email = email;
+            FirstName = firstName;
+            LastName = lastName;
             PasswordHash = passwordHash;
         }
 
-        public static async Task<Result<User>> Create(Guid userId, string? userName, string email, string passwordHash, IUserRepository userRepository, CancellationToken cancellationToken = default)
+        public static async Task<Result<User>> Create(Guid userId, string? userName, string email, string? firstName , string? lastName, string passwordHash, IUserRepository userRepository, CancellationToken cancellationToken = default)
         {
             if (await userRepository.IsExistedUser(email, cancellationToken))
                 return Result.Failure<User>(UserErrors.EmailAlreadyExists);
 
-            var user = new User(userId, userName, email, passwordHash);
+            var user = new User(userId, userName, email, firstName, lastName, passwordHash);
 
-            user.RaiseDomainEvent(new UserCreatedDomainEvent(userId));
+            user.RaiseDomainEvent(new UserCreatedDomainEvent(userId, email , userName));
 
             return Result.Success(user);
         }
@@ -56,7 +63,7 @@ namespace eShopv1.Domain.Users
 
             PasswordHash = newPassword;
 
-            RaiseDomainEvent(new UserPasswordChangedDomainEvent(Id, PasswordHash));
+            RaiseDomainEvent(new UserPasswordChangedDomainEvent(Id, Email, PasswordHash));
 
             return Result.Success();
         }

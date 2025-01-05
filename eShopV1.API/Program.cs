@@ -1,10 +1,17 @@
 using Asp.Versioning.ApiExplorer;
 using eShopV1.API.Extensions;
-using eShopV1.Application;
 using eShopV1.API.OpenApi;
+using eShopV1.Application;
 using eShopV1.Infrastructure;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, loggerConfig) =>
+    loggerConfig.ReadFrom.Configuration(context.Configuration));
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -20,7 +27,6 @@ builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
-// Enable Swagger middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -42,9 +48,23 @@ if (app.Environment.IsDevelopment())
 // Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
 
+app.UseRequestContextLogging();
+
+app.UseSerilogRequestLogging();
+
+app.UseCustomExceptionHandler();
+
+app.UseCors("AllowClient");
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.Run();

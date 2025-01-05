@@ -16,7 +16,7 @@ namespace eShopV1.Infrastructure.Configurations
                 .WithMany()
                 .UsingEntity<RolePermission>();
 
-            builder.HasData(new[] { Role.Admin, Role.Registered });
+            builder.HasData(new[] { Role.Admin, Role.User });
         }
     }
 }

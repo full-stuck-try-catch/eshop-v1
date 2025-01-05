@@ -13,14 +13,20 @@ namespace eShopV1.Application.Users.RegisterUser
 
             RuleFor(x => x.Password)
                 .NotEmpty()
-                .MinimumLength(8)
-                .WithMessage("Password must be at least 8 characters long")
-                .Matches(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]")
-                .WithMessage("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+                .MinimumLength(6)
+                .WithMessage("Password must be at least 6 characters long");
 
             RuleFor(x => x.UserName)
-                .MaximumLength(100)
+                .MaximumLength(200)
                 .WithMessage("Username cannot exceed 100 characters");
+
+            RuleFor(x => x.FirstName)
+                .MaximumLength(200)
+                .WithMessage("First name cannot exceed 200 characters");
+
+            RuleFor(x => x.LastName)
+                .MaximumLength(200)
+                .WithMessage("Last name cannot exceed 200 characters");
         }
     }
 }

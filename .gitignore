@@ -1,3 +1,9 @@
 .vs/
 **/bin/
 **/obj/
+**/codebase/
+**/.cursor/
+**/memory-bank/
+**/client/
+**/custom_modes/
+eShopv1.code-workspace

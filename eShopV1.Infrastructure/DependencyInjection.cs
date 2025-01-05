@@ -5,15 +5,21 @@ using eShopV1.Application.Abstractions.Authentication;
 using eShopV1.Application.Abstractions.Data;
 using eShopV1.Application.Abstractions.Jwt;
 using eShopV1.Application.Abstractions.Time;
+using eShopV1.Application.Caching;
 using eShopV1.Infrastructure.Authentication;
+using eShopV1.Infrastructure.Authorization;
+using eShopV1.Infrastructure.Caching;
 using eShopV1.Infrastructure.Data;
 using eShopV1.Infrastructure.Repositories;
 using eShopV1.Infrastructure.Time;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
 using System.Text;
 
 namespace eShopV1.Infrastructure
@@ -26,11 +32,31 @@ namespace eShopV1.Infrastructure
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
+            // Add CORS policy for client
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowClient",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:5173")
+                               .AllowAnyHeader()
+                               .AllowAnyMethod();
+                    });
+            });
+
             AddPersistence(services, configuration);
+
+            AddCaching(services, configuration);
 
             AddAuthentication(services, configuration);
 
+            AddAuthorization(services);
+
+            AddHealthChecks(services, configuration);
+
             AddApiVersioning(services);
+
+            AddBackgroundJobs(services, configuration);
 
             return services;
         }
@@ -90,13 +116,46 @@ namespace eShopV1.Infrastructure
                     };
                 });
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-            });
+            services.AddHttpContextAccessor();
+
+            services.AddScoped<IUserContext, UserContext>();
 
             services.AddTransient<IJwtTokenService, JwtTokenService>();
             services.AddTransient<IPasswordHasher, PasswordHasher>();
         }
-     }
+
+        private static void AddAuthorization(IServiceCollection services)
+        {
+            services.AddScoped<AuthorizationService>();
+            services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
+
+            services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+        }
+
+        private static void AddCaching(IServiceCollection services, IConfiguration configuration)
+        {
+            string connectionString = configuration.GetConnectionString("Cache") ??
+                                      throw new ArgumentNullException(nameof(configuration));
+
+            services.AddStackExchangeRedisCache(options => options.Configuration = connectionString);
+
+            services.AddSingleton<ICacheService, CacheService>();
+        }
+
+        private static void AddHealthChecks(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddHealthChecks()
+                .AddNpgSql(configuration.GetConnectionString("Database")!)
+                .AddRedis(configuration.GetConnectionString("Cache")!);
+        }
+
+        private static void AddBackgroundJobs(IServiceCollection services, IConfiguration configuration)
+        {
+
+            services.AddQuartz();
+
+            services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+        }
+    }
 }

@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace eShopV1.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,6 +47,8 @@ namespace eShopV1.Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     email = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    first_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    last_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     password_hash = table.Column<string>(type: "text", nullable: false),
                     address_name = table.Column<string>(type: "text", nullable: true),
                     address_line1 = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -142,7 +144,7 @@ namespace eShopV1.Infrastructure.Migrations
                 values: new object[,]
                 {
                     { 1, "Admin" },
-                    { 2, "Registered" }
+                    { 2, "User" }
                 });
 
             migrationBuilder.InsertData(

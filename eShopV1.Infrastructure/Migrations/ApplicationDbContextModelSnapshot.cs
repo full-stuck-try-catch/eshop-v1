@@ -105,7 +105,7 @@ namespace eShopV1.Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            Name = "Registered"
+                            Name = "User"
                         });
                 });
 
@@ -157,6 +157,16 @@ namespace eShopV1.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("email");
+
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("first_name");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("last_name");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

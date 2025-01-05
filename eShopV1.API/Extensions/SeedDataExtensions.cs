@@ -20,6 +20,8 @@ namespace eShopV1.API.Extensions
             var id = Guid.NewGuid();
             var adminUserName = "admin";
             var adminEmail = "admin@yourdomain.com";
+            var firstName = "admin";
+            var lastName = "admin";
             var adminPassword = BCrypt.Net.BCrypt.HashPassword("Admin@123"); // Use your password hashing here!
 
             var adminUserId = connection.QueryFirstOrDefault<Guid?>(
@@ -28,8 +30,8 @@ namespace eShopV1.API.Extensions
             if (adminUserId == null)
             {
                 connection.Execute(
-                    "INSERT INTO users (id ,user_name, email, password_hash) VALUES (@Id, @UserName, @Email, @PasswordHash)",
-                    new { Id = id, UserName = adminUserName, Email = adminEmail, PasswordHash = adminPassword });
+                    "INSERT INTO users (id ,user_name, email, first_name, last_name, password_hash) VALUES (@Id, @UserName, @Email, @FirstName , @LastName, @PasswordHash)",
+                    new { Id = id, UserName = adminUserName, Email = adminEmail, FirstName = firstName, LastName = lastName, PasswordHash = adminPassword });
 
                 adminUserId = connection.QuerySingle<Guid>("SELECT id FROM users WHERE user_name = @UserName", new { UserName = adminUserName });
             }

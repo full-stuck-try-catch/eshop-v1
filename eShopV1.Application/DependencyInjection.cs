@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using eShopV1.Application.Abstractions.Behaviors;
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,11 +13,11 @@ namespace eShopV1.Application
             {
                 configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
 
-                //configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
+                configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
 
-                //configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
+                configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
 
-                //configuration.AddOpenBehavior(typeof(QueryCachingBehavior<,>));
+                configuration.AddOpenBehavior(typeof(QueryCachingBehavior<,>));
             });
 
             services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly, includeInternalTypes: true);

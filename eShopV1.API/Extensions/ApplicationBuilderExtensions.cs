@@ -1,4 +1,5 @@
-﻿using eShopV1.Infrastructure;
+﻿using eShopV1.API.Middleware;
+using eShopV1.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace eShopV1.API.Extensions
@@ -12,6 +13,18 @@ namespace eShopV1.API.Extensions
             using ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             dbContext.Database.Migrate();
+        }
+
+        public static void UseCustomExceptionHandler(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+        }
+
+        public static IApplicationBuilder UseRequestContextLogging(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<RequestContextLoggingMiddleware>();
+
+            return app;
         }
     }
 }

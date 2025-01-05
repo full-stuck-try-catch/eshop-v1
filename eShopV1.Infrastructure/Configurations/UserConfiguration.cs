@@ -16,6 +16,14 @@ namespace eShopV1.Infrastructure.Configurations
                 .HasMaxLength(200)
                 .IsRequired(false);
 
+            builder.Property(u => u.FirstName)
+               .HasMaxLength(200)
+               .IsRequired(false);
+
+            builder.Property(u => u.LastName)
+               .HasMaxLength(200)
+               .IsRequired(false);
+
             builder.Property(u => u.Email)
                .HasMaxLength(200)
                .IsRequired(true);

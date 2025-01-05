@@ -2,5 +2,5 @@
 
 namespace eShopv1.Domain.Users.Events
 {
-    public sealed record UserPasswordChangedDomainEvent(Guid UserId, string PasswordHash) : IDomainEvent;
+    public sealed record UserPasswordChangedDomainEvent(Guid UserId, string Email, string PasswordHash) : IDomainEvent;
 }

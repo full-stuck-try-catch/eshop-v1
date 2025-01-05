@@ -24,7 +24,7 @@ namespace eShopV1.API.Controllers.Users
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserRequest request, CancellationToken cancellationToken)
         {
-            var command = new RegisterUserCommand(request.Email, request.Password, request.UserName);
+            var command = new RegisterUserCommand(request.Email, request.Password, request.FirstName , request.LastName, request.UserName);
             
             var result = await _mediator.Send(command, cancellationToken);
             
