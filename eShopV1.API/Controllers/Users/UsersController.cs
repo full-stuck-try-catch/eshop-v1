@@ -2,6 +2,7 @@ using Asp.Versioning;
 using eShopv1.Domain.Abstractions;
 using eShopV1.Application.Users.LoginUser;
 using eShopV1.Application.Users.RegisterUser;
+using eShopV1.Application.Users.GetUserInfo;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,21 @@ namespace eShopV1.API.Controllers.Users
             if (result.IsFailure)
             {
                 return Unauthorized(result.Error);
+            }
+
+            return Ok(result.Value);
+        }
+
+        [HttpGet("user-info")]
+        public async Task<IActionResult> GetUserInfo(CancellationToken cancellationToken)
+        {
+            var query = new GetUserInfoQuery();
+
+            Result<GetUserInfoResponse> result = await _mediator.Send(query, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                return BadRequest(new { error = result.Error.Code, message = result.Error.Name });
             }
 
             return Ok(result.Value);
