@@ -14,11 +14,9 @@ namespace eShopv1.Domain.Products
         public int QuantityInStock { get; private set; }
         public ProductStatus Status { get; private set; }
         public DateTime CreatedAt { get; private set; }
-        public DateTime UpdatedAt { get; private set; }
+        public DateTime? UpdatedAt { get; private set; }
 
-        private Product() { }
-
-        private Product(Guid id, string name, string description, decimal price, string pictureUrl, string brand, int quantityInStock, ProductStatus status, DateTime createdAt, DateTime updatedAt) : base(id)
+        private Product(Guid id, string name, string description, decimal price, string pictureUrl, string brand, int quantityInStock, ProductStatus status, DateTime createdAt) : base(id)
         {
             Name = name;
             Description = description;
@@ -28,12 +26,11 @@ namespace eShopv1.Domain.Products
             QuantityInStock = quantityInStock;
             Status = status;
             CreatedAt = createdAt;
-            UpdatedAt = updatedAt;
         }
 
-        public static Product Create(Guid id, string name, string description, decimal price, string pictureUrl, string type, string brand, int quantityInStock, ProductStatus status, DateTime createdAt, DateTime updatedAt)
+        public static Product Create(Guid id, string name, string description, decimal price, string pictureUrl, string type, string brand, int quantityInStock, ProductStatus status, DateTime createdAt)
         {
-            var product = new Product(id, name, description, price, pictureUrl, brand, quantityInStock, status, createdAt, updatedAt);
+            var product = new Product(id, name, description, price, pictureUrl, brand, quantityInStock, status, createdAt);
 
             product.RaiseDomainEvent(new ProductCreatedEvent(product.Id, product.Name, product.Brand, product.QuantityInStock));
 

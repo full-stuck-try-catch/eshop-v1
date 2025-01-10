@@ -8,8 +8,8 @@ public sealed class OrderService{
             throw new ArgumentNullException(nameof(coupon));
         }
 
-        var subtotal = items.Sum(item => item.Price * item.Quantity);
-        var discount = coupon.CalculateDiscount(subtotal);
+        decimal subtotal = items.Sum(item => item.Price * item.Quantity);
+        decimal discount = coupon.CalculateDiscount(subtotal);
         return new OrderPriceDetail(subtotal, discount);
     }
 }

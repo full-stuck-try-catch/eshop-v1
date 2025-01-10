@@ -1,4 +1,5 @@
 using eShopv1.Domain.Abstractions;
+using eShopv1.Domain.Orders.Events;
 using eShopv1.Domain.ShoppingCarts;
 
 namespace eShopv1.Domain.Orders;
@@ -14,26 +15,25 @@ public sealed class Order : AggregateRoot
     // After discount/shipping/tax
     public decimal Discount { get; set; }
     public string Currency { get; private set; }
-    public Guid? CouponId { get; private set; }
-    public DeliveryMethod DeliveryMethod { get; private set; }
-    public ShippingAddress ShippingAddress { get; private set; }
+    public AppCoupon? AppliedCoupon { get; private set; }
+    public DeliveryMethod DeliveryMethod { get; private set; } = null!;
+    public ShippingAddress ShippingAddress { get; private set; } = null!;
     public OrderStatus Status { get; private set; }
     public DateTime OrderDate { get; private set; }
+    public DateTime? UpdatedAt { get; private set; }
 
-    private Order(Guid id) : base(id) { }
-
-    private Order(Guid id, Guid userId, decimal subtotal, decimal discount, DeliveryMethod deliveryMethod, ShippingAddress shippingAddress, OrderStatus status, DateTime orderDate) : base(id)
+    private Order(Guid id, Guid userId, decimal subtotal, decimal discount, string currency, DateTime orderDate) : base(id)
     {
         UserId = userId;
         Subtotal = subtotal;
         Discount = discount;
-        DeliveryMethod = deliveryMethod;
-        Status = status;
+        Currency = currency;
+        Status = OrderStatus.Pending;
         OrderDate = orderDate;
-        ShippingAddress = shippingAddress;
     }
 
-    public static Result<Order> Create(Guid id, Guid userId, DeliveryMethod deliveryMethod, ShippingAddress shippingAddress, DateTime orderDate, AppCoupon? coupon, List<OrderItem> items, OrderService orderService)
+    public static Result<Order> Create(Guid id, Guid userId, string currency, ShippingAddress shippingAddress, DateTime orderDate,DeliveryMethod deliveryMethod, AppCoupon? appliedCoupon, 
+        List<OrderItem> items, OrderService orderService)
     {
         if(!items.Any()){
             return Result.Failure<Order>(OrderErrors.OrderItemsRequired);
@@ -43,23 +43,33 @@ public sealed class Order : AggregateRoot
             return Result.Failure<Order>(OrderErrors.ShippingAddressRequired);
         }
 
-        if(deliveryMethod is null){
-            return Result.Failure<Order>(OrderErrors.DeliveryMethodRequired);
-        }
+        var priceDetail = orderService.CalculateOrderPrice(items, appliedCoupon);
 
-        var priceDetail = orderService.CalculateOrderPrice(items, coupon);
+        var order = new Order(id, userId, priceDetail.Subtotal, priceDetail.Discount, currency, orderDate);
+        order.ShippingAddress = shippingAddress;
+        order.AppliedCoupon = appliedCoupon;
+        order.DeliveryMethod = deliveryMethod;
 
-        var order = new Order(id, userId, priceDetail.Subtotal, priceDetail.Discount, deliveryMethod, shippingAddress, OrderStatus.Pending, orderDate);
         order._items.AddRange(items);
+
+        order.RaiseDomainEvent(new OrderCreatedDomainEvent(id, userId));
+
         return Result.Success(order);
     }
 
-    public Result UpdateOrder(Guid id, Guid userId, DeliveryMethod deliveryMethod, ShippingAddress shippingAddress, DateTime orderDate, AppCoupon? coupon, List<OrderItem> items, OrderService orderService)
+    public Result UpdateOrder(Guid id, ShippingAddress shippingAddress, DateTime updatedAt, AppCoupon? appliedCoupon, List<OrderItem> items, OrderService orderService)
     {
-        var priceDetail = orderService.CalculateOrderPrice(items, coupon);
+        var priceDetail = orderService.CalculateOrderPrice(items, appliedCoupon);
 
-        var order = new Order(id, userId, priceDetail.Subtotal, priceDetail.Discount, deliveryMethod, shippingAddress, OrderStatus.Pending, orderDate);
-        order._items.AddRange(items);
-        return Result.Success(order);
+        Subtotal = priceDetail.Subtotal;
+        Discount = priceDetail.Discount;
+        ShippingAddress = shippingAddress;
+        UpdatedAt = updatedAt;
+        AppliedCoupon = appliedCoupon;
+        _items.Clear();
+        _items.AddRange(items);
+        RaiseDomainEvent(new OrderUpdatedDomainEvent(id, _items, ShippingAddress, AppliedCoupon, UpdatedAt));
+        
+        return Result.Success();
     }   
 }

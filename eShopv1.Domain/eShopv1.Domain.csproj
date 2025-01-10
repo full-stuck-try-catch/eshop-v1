@@ -11,10 +11,4 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Orders\" />
-    <Folder Include="Products\" />
-    <Folder Include="Shared\" />
-  </ItemGroup>
-
 </Project>

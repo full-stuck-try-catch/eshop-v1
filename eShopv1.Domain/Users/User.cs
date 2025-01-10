@@ -21,7 +21,7 @@ namespace eShopv1.Domain.Users
 
         public IReadOnlyCollection<Role> Roles => _roles.ToList();
 
-        public Address? Address { get; set; }
+        public Address? Address { get; private set; }
 
         private User() { }
 
@@ -71,6 +71,13 @@ namespace eShopv1.Domain.Users
         public void AddRole(Role role)
         {
             _roles.Add(role);
+        }
+
+        public void UpdateAddress(Address address)
+        {
+            if (address is null)
+                throw new ArgumentNullException(nameof(address), "Address cannot be null");
+            Address = address;
         }
     }
 }

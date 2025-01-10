@@ -4,6 +4,10 @@ using eShopV1.Application.Abstractions.Data;
 using eShopV1.Application.Abstractions.Time;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using eShopv1.Domain.Products;
+using eShopv1.Domain.ShoppingCarts;
+using eShopv1.Domain.Orders;
+using eShopv1.Domain.Payments;
 
 namespace eShopV1.Infrastructure
 {
@@ -27,8 +31,19 @@ namespace eShopV1.Infrastructure
 
         public DbSet<Permission> Permissions { get; private set; }
 
-        // Add DbSet properties for other entities as needed
-        // public DbSet<YourEntity> YourEntities { get; set; }
+        public DbSet<Product> Products { get; private set; }
+
+        public DbSet<ShoppingCart> ShoppingCarts { get; private set; }
+
+        public DbSet<CartItem> CartItems { get; private set; }
+
+        public DbSet<Order> Orders { get; private set; }
+
+        public DbSet<OrderItem> OrderItems { get; private set; }
+
+        public DbSet<DeliveryMethod> DeliveryMethods { get; private set; }
+
+        public DbSet<Payment> Payments { get; private set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

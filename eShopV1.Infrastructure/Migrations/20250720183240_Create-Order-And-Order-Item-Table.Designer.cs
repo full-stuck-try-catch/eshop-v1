@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using eShopV1.Infrastructure;
@@ -11,9 +12,11 @@ using eShopV1.Infrastructure;
 namespace eShopV1.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250720183240_Create-Order-And-Order-Item-Table")]
+    partial class CreateOrderAndOrderItemTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,58 +155,6 @@ namespace eShopV1.Infrastructure.Migrations
                         .HasDatabaseName("ix_order_items_order_id");
 
                     b.ToTable("order_items", (string)null);
-                });
-
-            modelBuilder.Entity("eShopv1.Domain.Payments.Payment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("character varying(5)")
-                        .HasColumnName("currency");
-
-                    b.Property<Guid>("OrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("order_id");
-
-                    b.Property<DateTime>("PaymentDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("payment_date");
-
-                    b.Property<string>("PaymentIntentId")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("payment_intent_id");
-
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("integer")
-                        .HasColumnName("payment_method");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_payments");
-
-                    b.HasIndex("OrderId")
-                        .HasDatabaseName("ix_payments_order_id");
-
-                    b.ToTable("payments", (string)null);
                 });
 
             modelBuilder.Entity("eShopv1.Domain.Products.Product", b =>
@@ -687,53 +638,6 @@ namespace eShopV1.Infrastructure.Migrations
                         });
 
                     b.Navigation("ProductItemOrdered")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("eShopv1.Domain.Payments.Payment", b =>
-                {
-                    b.HasOne("eShopv1.Domain.Orders.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_payments_orders_order_id");
-
-                    b.OwnsOne("eShopv1.Domain.Payments.PaymentSummary", "PaymentSummary", b1 =>
-                        {
-                            b1.Property<Guid>("PaymentId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<string>("Brand")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("payment_summary_brand");
-
-                            b1.Property<int>("ExpMonth")
-                                .HasColumnType("integer")
-                                .HasColumnName("payment_summary_exp_month");
-
-                            b1.Property<int>("ExpYear")
-                                .HasColumnType("integer")
-                                .HasColumnName("payment_summary_exp_year");
-
-                            b1.Property<int>("Last4")
-                                .HasColumnType("integer")
-                                .HasColumnName("payment_summary_last4");
-
-                            b1.HasKey("PaymentId");
-
-                            b1.ToTable("payments");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PaymentId")
-                                .HasConstraintName("fk_payments_payments_id");
-                        });
-
-                    b.Navigation("Order");
-
-                    b.Navigation("PaymentSummary")
                         .IsRequired();
                 });
 

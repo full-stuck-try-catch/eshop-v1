@@ -1,6 +1,6 @@
 using eShopv1.Domain.Abstractions;
 
-namespace eShopv1.Domain.Orders;
+namespace eShopv1.Domain.Payments;
 
 public enum PaymentMethod{
     CreditCard,

@@ -1,4 +1,4 @@
-namespace eShopv1.Domain.Orders;
+namespace eShopv1.Domain.Payments;
 
 public enum PaymentStatus{
     Pending,
