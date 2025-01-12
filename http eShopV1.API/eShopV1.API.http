@@ -1,0 +1,88 @@
+@eShopV1.API_HostAddress = http://localhost:5131
+
+POST {{eShopV1.API_HostAddress}}/api/v1/users/login
+Content-Type: application/json
+{
+  "email" : "admin@yourdomain.com",
+  "passWord" : "Admin@123"
+}
+###
+
+# Get shopping cart by cart ID
+GET {{eShopV1.API_HostAddress}}/api/v1.0/carts/123e4567-e89b-12d3-a456-426614174000
+
+###
+
+# Get shopping cart by buyer ID
+GET {{eShopV1.API_HostAddress}}/api/v1.0/carts/buyer/456e7890-e89b-12d3-a456-426614174000
+
+###
+
+# Create new cart
+POST {{eShopV1.API_HostAddress}}/api/v1.0/carts
+Content-Type: application/json
+{
+  "cartId": null,
+  "buyerId": "456e7890-e89b-12d3-a456-426614174000",
+  "items": [
+    {
+      "productId": "abc1234-e89b-12d3-a456-426614174000",
+      "productName": "iPhone 15 Pro",
+      "price": 999.99,
+      "quantity": 2,
+      "pictureUrl": "https://example.com/iphone15pro.jpg",
+      "currency": "USD"
+    },
+    {
+      "productId": "def5678-e89b-12d3-a456-426614174000",
+      "productName": "MacBook Pro",
+      "price": 2499.99,
+      "quantity": 1,
+      "pictureUrl": "https://example.com/macbook.jpg",
+      "currency": "USD"
+    }
+  ],
+  "coupon": {
+    "name": "10% OFF",
+    "amountOff": null,
+    "percentOff": 10.0,
+    "promotionCode": "SAVE10"
+  },
+  "clientSecret": null,
+  "paymentIntentId": null
+}
+
+###
+
+# Update existing cart
+POST {{eShopV1.API_HostAddress}}/api/v1.0/carts
+Content-Type: application/json
+{
+  "cartId": "123e4567-e89b-12d3-a456-426614174000",
+  "buyerId": "456e7890-e89b-12d3-a456-426614174000",
+  "items": [
+    {
+      "productId": "abc1234-e89b-12d3-a456-426614174000",
+      "productName": "iPhone 15 Pro",
+      "price": 999.99,
+      "quantity": 3,
+      "pictureUrl": "https://example.com/iphone15pro.jpg",
+      "currency": "USD"
+    }
+  ],
+  "coupon": null,
+  "clientSecret": "pi_xxx_secret_xxx",
+  "paymentIntentId": "pi_xxx"
+}
+
+###
+
+# Delete cart by ID
+DELETE {{eShopV1.API_HostAddress}}/api/v1.0/carts/123e4567-e89b-12d3-a456-426614174000
+
+###
+
+# Delete cart - test with non-existent cart ID
+DELETE {{eShopV1.API_HostAddress}}/api/v1.0/carts/999e9999-e89b-12d3-a456-426614174999
+
+###

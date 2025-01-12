@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using eShopv1.Domain.Abstractions;
+using eShopv1.Domain.ShoppingCarts;
 using eShopv1.Domain.Users;
 using eShopV1.Application.Abstractions.Authentication;
 using eShopV1.Application.Abstractions.Data;
@@ -76,6 +77,8 @@ namespace eShopV1.Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
 
             services.AddScoped<IRoleRepository, RoleRepository>();
+
+            services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
 
             services.AddSingleton<ISqlConnectionFactory>(_ =>
             new SqlConnectionFactory(connectionString));

@@ -19,4 +19,8 @@
     <ProjectReference Include="..\eShopv1.Domain\eShopv1.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ShoppingCarts\AddProductToCart\" />
+  </ItemGroup>
+
 </Project>

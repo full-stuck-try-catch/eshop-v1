@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace eShopV1.Application.Pagination;
 
-
 public class PagedList<T>
 {
     private PagedList(List<T> items, int page, int pageSize, int totalCount)

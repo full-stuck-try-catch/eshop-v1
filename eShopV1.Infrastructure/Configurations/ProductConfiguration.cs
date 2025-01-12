@@ -44,6 +44,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired();
 
         builder.Property(p => p.UpdatedAt)
-            .IsRequired();
+            .IsRequired(false);
     }
 }

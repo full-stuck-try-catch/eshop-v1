@@ -7,3 +7,21 @@ Content-Type: application/json
   "passWord" : "Admin@123"
 }
 ###
+
+# Get all products (first page, 10 items)
+# GET /api/v1.0/products
+
+# # Search products with pagination
+# GET /api/v1.0/products?searchTerm=laptop&page=1&pageSize=20
+
+# # Filter by brand and price range
+# GET /api/v1.0/products?brand=Apple&minPrice=500&maxPrice=2000
+
+# # Sort by price descending
+# GET /api/v1.0/products?sortBy=price&sortOrder=desc
+
+# # Filter published products only
+# GET /api/v1.0/products?status=1
+
+# # Complex query
+# GET /api/v1.0/products?searchTerm=phone&brand=Samsung&minPrice=300&sortBy=price&sortOrder=asc&page=2&pageSize=15

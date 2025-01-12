@@ -61,6 +61,11 @@ public sealed class ShoppingCart : AggregateRoot
         return Result.Success();
     }
 
+    public void ClearCart()
+    {
+        _items.Clear();
+    }
+
     public Result ApplyCoupon(AppCoupon coupon)
     {
         if(Coupon is null){
