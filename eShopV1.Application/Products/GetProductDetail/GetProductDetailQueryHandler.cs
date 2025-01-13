@@ -30,6 +30,7 @@ internal sealed class GetProductDetailQueryHandler
                 p.Currency,
                 p.PictureUrl,
                 p.Brand,
+                p.Type,
                 p.QuantityInStock,
                 p.Status.ToString(),
                 p.Status == ProductStatus.Published && p.QuantityInStock > 0,

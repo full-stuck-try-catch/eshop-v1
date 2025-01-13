@@ -36,6 +36,16 @@ internal sealed class GetProductsQueryHandler
         {
             query = query.Where(p => p.Brand.ToLower() == request.Brand.ToLower());
         }
+        
+        if (!string.IsNullOrWhiteSpace(request.Brand))
+        {
+            query = query.Where(p => p.Brand.ToLower() == request.Brand.ToLower());
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Type))
+        {
+            query = query.Where(p => p.Type.ToLower() == request.Type.ToLower());
+        }
 
         if (request.MinPrice.HasValue)
         {
@@ -64,6 +74,7 @@ internal sealed class GetProductsQueryHandler
             p.Currency,
             p.PictureUrl,
             p.Brand,
+            p.Type,
             p.QuantityInStock,
             (int)p.Status,
             p.CreatedAt,
@@ -95,6 +106,7 @@ internal sealed class GetProductsQueryHandler
             "name" => isDescending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
             "price" => isDescending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
             "brand" => isDescending ? query.OrderByDescending(p => p.Brand) : query.OrderBy(p => p.Brand),
+            "type" => isDescending ? query.OrderByDescending(p => p.Type) : query.OrderBy(p => p.Type),
             "createdat" => isDescending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
             "quantityinstock" => isDescending ? query.OrderByDescending(p => p.QuantityInStock) : query.OrderBy(p => p.QuantityInStock),
             "status" => isDescending ? query.OrderByDescending(p => p.Status) : query.OrderBy(p => p.Status),

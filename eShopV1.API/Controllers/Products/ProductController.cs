@@ -26,6 +26,7 @@ namespace eShopV1.API.Controllers.Products
             var query = new GetProductsQuery(
                 request.SearchTerm,
                 request.Brand,
+                request.Type,
                 request.MinPrice,
                 request.MaxPrice,
                 request.Status,

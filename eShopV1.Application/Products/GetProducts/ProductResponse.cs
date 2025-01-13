@@ -8,6 +8,7 @@ public sealed record ProductResponse(
     string Currency,
     string PictureUrl,
     string Brand,
+    string Type,
     int QuantityInStock,
     int Status,
     DateTime CreatedAt,
