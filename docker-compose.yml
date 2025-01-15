@@ -1,0 +1,40 @@
+services:
+  eshopv1.api:
+    image: ${DOCKER_REGISTRY-}eshopv1api
+    container_name: eShopV1.API
+    environment:
+      - PRODUCT_IMAGE_BASE_URL=${PRODUCT_IMAGE_BASE_URL:-https://localhost:5001}
+    build:
+      context: .
+      dockerfile: eShopV1.API/Dockerfile
+    depends_on:
+      - eshopv1-db
+
+  eshopv1-db:
+    image: postgres:latest
+    container_name: eShopV1.Db
+    environment:
+      - POSTGRES_DB=eShopV1Db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - /e/docker-volumes/booklibrary-db:/var/lib/postgresql/data
+    ports:
+      - 5436:5432
+
+  my-seq:
+    image: datalust/seq:latest
+    container_name: eShopV1.Seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINPASSWORD=12345678
+    ports:
+      - 5343:5343
+      - 8083:80
+
+  my-redis:
+    image: redis:latest
+    container_name: eShopV1.Redis
+    ports:
+      - 6379:6379
+    restart: always
