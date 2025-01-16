@@ -60,11 +60,17 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.UseDefaultFiles();
+
+app.UseStaticFiles();
+
 app.MapControllers();
 
 app.MapHealthChecks("health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
+
+app.MapFallbackToController("Index", "Fallback");
 
 app.Run();

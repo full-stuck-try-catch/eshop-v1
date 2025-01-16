@@ -32,19 +32,18 @@ internal sealed class GetProductsQueryHandler
                 p.Description.ToLower().Contains(searchTerm));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Brand))
+        // Filter by brands array
+        if (request.Brands != null && request.Brands.Length > 0)
         {
-            query = query.Where(p => p.Brand.ToLower() == request.Brand.ToLower());
-        }
-        
-        if (!string.IsNullOrWhiteSpace(request.Brand))
-        {
-            query = query.Where(p => p.Brand.ToLower() == request.Brand.ToLower());
+            var brandsLower = request.Brands.Select(b => b.ToLower()).ToArray();
+            query = query.Where(p => brandsLower.Contains(p.Brand.ToLower()));
         }
 
-        if (!string.IsNullOrWhiteSpace(request.Type))
+        // Filter by types array
+        if (request.Types != null && request.Types.Length > 0)
         {
-            query = query.Where(p => p.Type.ToLower() == request.Type.ToLower());
+            var typesLower = request.Types.Select(t => t.ToLower()).ToArray();
+            query = query.Where(p => typesLower.Contains(p.Type.ToLower()));
         }
 
         if (request.MinPrice.HasValue)
@@ -55,11 +54,6 @@ internal sealed class GetProductsQueryHandler
         if (request.MaxPrice.HasValue)
         {
             query = query.Where(p => p.Price <= request.MaxPrice.Value);
-        }
-
-        if (request.Status.HasValue)
-        {
-            query = query.Where(p => (int)p.Status == request.Status.Value);
         }
 
         // Apply sorting
@@ -76,7 +70,6 @@ internal sealed class GetProductsQueryHandler
             p.Brand,
             p.Type,
             p.QuantityInStock,
-            (int)p.Status,
             p.CreatedAt,
             p.UpdatedAt));
 
@@ -109,7 +102,6 @@ internal sealed class GetProductsQueryHandler
             "type" => isDescending ? query.OrderByDescending(p => p.Type) : query.OrderBy(p => p.Type),
             "createdat" => isDescending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
             "quantityinstock" => isDescending ? query.OrderByDescending(p => p.QuantityInStock) : query.OrderBy(p => p.QuantityInStock),
-            "status" => isDescending ? query.OrderByDescending(p => p.Status) : query.OrderBy(p => p.Status),
             _ => query.OrderBy(p => p.Name)
         };
     }

@@ -7,17 +7,11 @@ namespace eShopV1.Infrastructure.Authentication
     {
         public static Guid GetUserId(this ClaimsPrincipal? principal)
         {
-            string? userId = principal?.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            string? userId = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             return Guid.TryParse(userId, out Guid parsedUserId) ?
                 parsedUserId :
                 throw new ApplicationException("User id is unavailable");
-        }
-
-        public static string GetIdentityId(this ClaimsPrincipal? principal)
-        {
-            return principal?.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                   throw new ApplicationException("User identity is unavailable");
         }
 
         public static string GetEmail(this ClaimsPrincipal? principal)

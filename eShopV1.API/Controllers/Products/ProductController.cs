@@ -3,9 +3,13 @@ using eShopV1.Application.Products.GetProducts;
 using eShopV1.Application.Products.GetProductDetail;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using eShopV1.Application.Products.GetBrands;
+using eShopV1.Application.Products.GetTypes;
+using Microsoft.AspNetCore.Authorization;
 
 namespace eShopV1.API.Controllers.Products
 {
+    [AllowAnonymous]
     [ApiController]
     [ApiVersion(ApiVersions.V1)]
     [Route("api/v{version:apiVersion}/products")]
@@ -17,7 +21,7 @@ namespace eShopV1.API.Controllers.Products
         {
             _mediator = mediator;
         }
-
+      
         [HttpGet]
         public async Task<IActionResult> GetProducts(
             [FromQuery] GetProductsRequest request,
@@ -25,8 +29,8 @@ namespace eShopV1.API.Controllers.Products
         {
             var query = new GetProductsQuery(
                 request.SearchTerm,
-                request.Brand,
-                request.Type,
+                request.Brands,
+                request.Types,
                 request.MinPrice,
                 request.MaxPrice,
                 request.Status,
@@ -47,7 +51,7 @@ namespace eShopV1.API.Controllers.Products
         {
             var query = new GetProductDetailQuery(id);
 
-            var result = await _mediator.Send(query, cancellationToken);
+                var result = await _mediator.Send(query, cancellationToken);
 
             if (result.IsFailure)
             {
@@ -59,6 +63,26 @@ namespace eShopV1.API.Controllers.Products
             }
 
             return Ok(result.Value);
+        }
+
+        [HttpGet("brands")]
+        public async Task<IActionResult> GetBrands(CancellationToken cancellationToken)
+        {
+            var query = new GetBrandsCachedQuery();
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
+        }
+
+        [HttpGet("types")]
+        public async Task<IActionResult> GetTypes(CancellationToken cancellationToken)
+        {
+            var query = new GetTypesCachedQuery();
+
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Error);
         }
     }
 }

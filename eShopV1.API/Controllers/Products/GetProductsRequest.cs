@@ -2,8 +2,8 @@ namespace eShopV1.API.Controllers.Products;
 
 public sealed record GetProductsRequest(
     string? SearchTerm = null,
-    string? Brand = null,
-    string? Type = null,
+    string[]? Brands = null,
+    string[]? Types = null,
     decimal? MinPrice = null,
     decimal? MaxPrice = null,
     int? Status = null,

@@ -10,7 +10,5 @@ public sealed record ProductDetailResponse(
     string Brand,
     string Type,
     int QuantityInStock,
-    string Status,
-    bool IsAvailable,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

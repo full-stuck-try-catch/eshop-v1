@@ -10,6 +10,5 @@ public sealed record ProductResponse(
     string Brand,
     string Type,
     int QuantityInStock,
-    int Status,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

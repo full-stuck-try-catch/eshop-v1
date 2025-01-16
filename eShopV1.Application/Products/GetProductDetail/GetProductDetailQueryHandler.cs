@@ -32,8 +32,6 @@ internal sealed class GetProductDetailQueryHandler
                 p.Brand,
                 p.Type,
                 p.QuantityInStock,
-                p.Status.ToString(),
-                p.Status == ProductStatus.Published && p.QuantityInStock > 0,
                 p.CreatedAt,
                 p.UpdatedAt))
             .FirstOrDefaultAsync(cancellationToken);

@@ -5,8 +5,8 @@ namespace eShopV1.Application.Products.GetProducts;
 
 public sealed record GetProductsQuery(
     string? SearchTerm,
-    string? Brand,
-    string? Type,
+    string[]? Brands,
+    string[]? Types,
     decimal? MinPrice,
     decimal? MaxPrice,
     int? Status,

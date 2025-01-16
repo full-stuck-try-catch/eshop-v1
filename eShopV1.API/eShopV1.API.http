@@ -8,20 +8,14 @@ Content-Type: application/json
 }
 ###
 
-# Get all products (first page, 10 items)
-# GET /api/v1.0/products
+# Filter by Apple and Samsung brands (comma-separated)
+GET {{eShopV1.API_HostAddress}}/api/v1/products?brand=Apple,Samsung
 
-# # Search products with pagination
-# GET /api/v1.0/products?searchTerm=laptop&page=1&pageSize=20
+# Filter by Mobile and Computing types (comma-separated)
+GET {{eShopV1.API_HostAddress}}/api/v1/products?type=Mobile,Computing
 
-# # Filter by brand and price range
-# GET /api/v1.0/products?brand=Apple&minPrice=500&maxPrice=2000
+# Combined: Apple/Microsoft brands in Computing/Mobile types, $500-$2000 price range
+GET {{eShopV1.API_HostAddress}}/api/v1/products?brand=Apple,Microsoft&type=Computing,Mobile&minPrice=500&maxPrice=2000
 
-# # Sort by price descending
-# GET /api/v1.0/products?sortBy=price&sortOrder=desc
-
-# # Filter published products only
-# GET /api/v1.0/products?status=1
-
-# # Complex query
-# GET /api/v1.0/products?searchTerm=phone&brand=Samsung&minPrice=300&sortBy=price&sortOrder=asc&page=2&pageSize=15
+# Search "pro" in Apple/Dell Computing/Mobile products, sorted by price ascending
+GET {{eShopV1.API_HostAddress}}/api/v1/products?searchTerm=pro&brand=Apple,Dell&type=Computing,Mobile&sortBy=price&sortOrder=asc

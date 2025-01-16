@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ShoppingCarts\AddProductToCart\" />
+    <Folder Include="Carts\AddProductToCart\" />
   </ItemGroup>
 
 </Project>

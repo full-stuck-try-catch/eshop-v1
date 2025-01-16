@@ -1,8 +1,10 @@
 using Asp.Versioning;
 using eShopv1.Domain.Abstractions;
+using eShopV1.Application.Abstractions.Authentication;
+using eShopV1.Application.Users.GetUserInfo;
 using eShopV1.Application.Users.LoginUser;
 using eShopV1.Application.Users.RegisterUser;
-using eShopV1.Application.Users.GetUserInfo;
+using eShopV1.Infrastructure.Authorization;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +17,12 @@ namespace eShopV1.API.Controllers.Users
     public class UsersController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IUserContext _userContext;
 
-        public UsersController(IMediator mediator)
+        public UsersController(IMediator mediator, IUserContext userContext)
         {
             _mediator = mediator;
+            _userContext = userContext;
         }
 
         [AllowAnonymous]
@@ -54,6 +58,7 @@ namespace eShopV1.API.Controllers.Users
         }
 
         [HttpGet("user-info")]
+        [HasPermission(Permissions.UsersRead)]
         public async Task<IActionResult> GetUserInfo(CancellationToken cancellationToken)
         {
             var query = new GetUserInfoQuery();
@@ -66,6 +71,21 @@ namespace eShopV1.API.Controllers.Users
             }
 
             return Ok(result.Value);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("is-authenticated")]
+        public IActionResult IsAuthenticated()
+        {   
+            try
+            {
+                var userId = _userContext.UserId;
+                return Ok(new { isAuthenticated = true });
+            }
+            catch (ApplicationException)
+            {
+                return Ok(new { isAuthenticated = false });
+            }
         }
     }
 }

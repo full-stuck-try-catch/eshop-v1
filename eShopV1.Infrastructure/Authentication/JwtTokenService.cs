@@ -1,8 +1,8 @@
 ﻿using eShopv1.Domain.Users;
 using eShopV1.Application.Abstractions.Jwt;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
@@ -10,39 +10,48 @@ namespace eShopV1.Infrastructure.Authentication
 {
     public class JwtTokenService : IJwtTokenService
     {
-        private readonly IConfiguration _config;
-        public JwtTokenService(IConfiguration config) { _config = config; }
+        private readonly IConfiguration _configuration;
+        public JwtTokenService(IConfiguration configuration) { _configuration = configuration; }
 
         public string GenerateToken(User user)
         {
-            var jwtSettings = _config.GetSection("Jwt");
+            string secretKey = _configuration["Jwt:Secret"]!;
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-            new Claim(ClaimTypes.Email, user.Email)
-        };
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email)
+            };
 
             // Add role claims
-            foreach (var role in user.Roles)
+            claims.AddRange(user.Roles.Select(r => new Claim(ClaimTypes.Role, r.Name)));
+
+            // Add permission claims
+            var permissions = user.Roles
+                .SelectMany(r => r.Permissions)
+                .Select(p => p.Name)
+                .Distinct();
+            
+            claims.AddRange(permissions.Select(p => new Claim("permission", p)));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                claims.Add(new Claim(ClaimTypes.Role, role.Name));
-                foreach (var perm in role.Permissions)
-                    claims.Add(new Claim("Permission", perm.Name));
-            }
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(_configuration.GetValue<int>("Jwt:ExpiresInMinutes")),
+                SigningCredentials = credentials,
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"]
+            };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var handler = new JsonWebTokenHandler();
 
-            var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiresInMinutes"])),
-                signingCredentials: creds
-            );
+            string token = handler.CreateToken(tokenDescriptor);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return token;
         }
     }
 }

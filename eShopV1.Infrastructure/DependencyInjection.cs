@@ -12,6 +12,7 @@ using eShopV1.Infrastructure.Authorization;
 using eShopV1.Infrastructure.Caching;
 using eShopV1.Infrastructure.Data;
 using eShopV1.Infrastructure.Repositories;
+using eShopV1.Infrastructure.Swaggers;
 using eShopV1.Infrastructure.Time;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -20,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Quartz;
 using System.Text;
 
@@ -33,17 +35,7 @@ namespace eShopV1.Infrastructure
         {
             services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
-            // Add CORS policy for client
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowClient",
-                    builder =>
-                    {
-                        builder.WithOrigins("http://localhost:5173")
-                               .AllowAnyHeader()
-                               .AllowAnyMethod();
-                    });
-            });
+            AddCors(services);
 
             AddPersistence(services, configuration);
 
@@ -53,6 +45,8 @@ namespace eShopV1.Infrastructure
 
             AddAuthorization(services);
 
+            AddSwagger(services, configuration);
+
             AddHealthChecks(services, configuration);
 
             AddApiVersioning(services);
@@ -60,6 +54,54 @@ namespace eShopV1.Infrastructure
             AddBackgroundJobs(services, configuration);
 
             return services;
+        }
+
+        private static void AddSwagger(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSwaggerGen(options =>
+            {
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = @"JWT Authorization header using the Bearer scheme. 
+          Enter 'Bearer' [space] and then your token.
+          Example: 'bearer 12345abcdef'",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",                  // <- All lowercase! ("bearer")
+                    BearerFormat = "JWT"
+                });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                        },
+                        new string[]{}
+                    }
+                });
+             });
+        }
+
+        private static void AddCors(IServiceCollection services)
+        {
+            // Add CORS policy for client
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowClient",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
+                               .AllowAnyHeader()
+                               .AllowAnyMethod()
+                               .AllowCredentials();
+                    });
+            });
         }
 
         private static void AddPersistence(IServiceCollection services, IConfiguration configuration)
@@ -103,19 +145,18 @@ namespace eShopV1.Infrastructure
 
         private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
         {
+            services.AddAuthorization();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     var jwtSettings = configuration.GetSection("Jwt");
+                    options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
                         ValidIssuer = jwtSettings["Issuer"],
                         ValidAudience = jwtSettings["Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"])),
+                        ClockSkew = TimeSpan.Zero,
                     };
                 });
 
@@ -130,7 +171,7 @@ namespace eShopV1.Infrastructure
         private static void AddAuthorization(IServiceCollection services)
         {
             services.AddScoped<AuthorizationService>();
-            services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
+            //services.AddTransient<IClaimsTransformation, CustomClaimsTransformation>();
 
             services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
             services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
